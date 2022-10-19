@@ -6,10 +6,18 @@
 	<artifactId>DeepLTranslatorAPI</artifactId>
 	<version>1.0</version>
 
+	<developers>
+		<developer>
+			<name>Mohamed Dhia Hachem</name>
+			<email>mdhachem@outlook.fr</email>
+		</developer>
+	</developers>
+
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
+
 
 	<dependencies>
 		<dependency>
