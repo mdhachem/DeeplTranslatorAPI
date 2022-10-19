@@ -1,0 +1,13 @@
+image: maven:3-jdk-11
+
+stages:
+  - build
+  - test
+  
+build:
+  stage: build
+  script: "mvn build"
+      
+test:
+  stage: test
+  script: "mvn test"
