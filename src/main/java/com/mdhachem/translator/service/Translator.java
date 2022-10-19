@@ -10,11 +10,12 @@ import com.mdhachem.exception.TranslatorException;
 import com.mdhachem.translator.FileType;
 import com.mdhachem.translator.SourceLanguage;
 import com.mdhachem.translator.TargetLanguage;
+import com.mdhachem.translator.TranslationOptions;
 import com.mdhachem.translator.http.HttpClient;
 import com.mdhachem.translator.http.HttpResponse;
 import com.mdhachem.translator.persing.Parser;
 import com.mdhachem.translator.persing.TextResponse;
-import com.mdhachem.translator.utils.DataValidator;
+import com.mdhachem.translator.utils.DataHandler;
 
 /**
  * 
@@ -30,12 +31,15 @@ public class Translator {
 	private final int connectTimeout;
 	private final int readTimeout;
 	private final int repetitions;
+	private final TranslationOptions translationOptions;
 
-	private Translator(String authKey, int connectTimeout, int readTimeout, int repetitions) {
+	private Translator(String authKey, int connectTimeout, int readTimeout, int repetitions,
+			TranslationOptions translationOptions) {
 		this.authKey = authKey;
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
 		this.repetitions = repetitions;
+		this.translationOptions = translationOptions;
 	}
 
 	public String getAuthKey() {
@@ -54,6 +58,10 @@ public class Translator {
 		return repetitions;
 	}
 
+	public TranslationOptions getTranslationOptions() {
+		return translationOptions;
+	}
+
 	/***
 	 * Translate method take as parameter the String text and return String text
 	 * translated
@@ -64,11 +72,11 @@ public class Translator {
 	 * @return String
 	 */
 	public String translate(String text, SourceLanguage from, TargetLanguage to) {
-		DataValidator.checkTargetLanguage(to);
+		DataHandler.checkTargetLanguage(to);
 		HttpResponse httpResponse = HttpClient.translate(this, text, from, to);
 		if (httpResponse.getStatus() == 200) {
 			List<TextResponse> response = jsonParser.parseTextResult(httpResponse.getResponseContent());
-			return response.get(0).getText();
+			return DataHandler.getResultAsString(response);
 		}
 		throw new TranslatorException(jsonParser.parseErrorMessage(httpResponse.getResponseContent()));
 	}
@@ -83,16 +91,16 @@ public class Translator {
 	 * @return String
 	 */
 	public List<String> translate(List<String> texts, SourceLanguage from, TargetLanguage to) {
-		DataValidator.checkTargetLanguage(to);
-		DataValidator.checkListInput(texts);
+		DataHandler.checkTargetLanguage(to);
+		DataHandler.checkListInput(texts);
 		List<String> result = new ArrayList<>();
 		texts.forEach(text -> {
 			HttpResponse httpResponse = HttpClient.translate(this, text, from, to);
 			if (httpResponse.getStatus() == 200) {
 				List<TextResponse> response = jsonParser.parseTextResult(httpResponse.getResponseContent());
-				result.add(response.get(0).getText());
+				result.add(DataHandler.getResultAsString(response));
 			} else {
-				throw new TranslatorException(jsonParser.parseErrorMessage(httpResponse.getResponseContent()));
+				result.add(DataHandler.EMPTY_STRING);
 			}
 		});
 
@@ -130,6 +138,7 @@ public class Translator {
 		private int connectTimeout;
 		private int readTimeout;
 		private int repetitions;
+		private TranslationOptions translationOptions;
 
 		public Builder() {
 			connectTimeout = 5000;
@@ -157,8 +166,13 @@ public class Translator {
 			return this;
 		}
 
+		public Builder withOptions(TranslationOptions translationOptions) {
+			this.translationOptions = translationOptions;
+			return this;
+		}
+
 		public Translator build() {
-			return new Translator(authKey, connectTimeout, readTimeout, repetitions);
+			return new Translator(authKey, connectTimeout, readTimeout, repetitions, translationOptions);
 		}
 
 	}

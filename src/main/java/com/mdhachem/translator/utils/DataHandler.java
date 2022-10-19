@@ -3,6 +3,7 @@ package com.mdhachem.translator.utils;
 import java.util.List;
 
 import com.mdhachem.translator.TargetLanguage;
+import com.mdhachem.translator.persing.TextResponse;
 
 /**
  * 
@@ -10,10 +11,16 @@ import com.mdhachem.translator.TargetLanguage;
  * @email mdhachem@outlook.fr
  *
  */
-public class DataValidator {
+public class DataHandler {
 
-	private DataValidator() {
+	public static final String EMPTY_STRING = "";
 
+	private DataHandler() {
+
+	}
+
+	public static String getResultAsString(List<TextResponse> response) {
+		return response != null && !response.isEmpty() ? response.get(0).getText() : EMPTY_STRING;
 	}
 
 	public static void checkTargetLanguage(TargetLanguage targetLanguage) {
