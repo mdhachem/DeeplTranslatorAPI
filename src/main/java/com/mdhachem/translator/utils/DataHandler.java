@@ -1,6 +1,7 @@
 package com.mdhachem.translator.utils;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.mdhachem.translator.TargetLanguage;
 import com.mdhachem.translator.persing.TextResponse;
@@ -20,7 +21,13 @@ public class DataHandler {
 	}
 
 	public static String getResultAsString(List<TextResponse> response) {
-		return response != null && !response.isEmpty() ? response.get(0).getText() : EMPTY_STRING;
+		if (response != null && !response.isEmpty()) {
+			Optional<TextResponse> element = response.stream().findFirst();
+			if (element.isPresent()) {
+				return element.get().getText();
+			}
+		}
+		return EMPTY_STRING;
 	}
 
 	public static void checkTargetLanguage(TargetLanguage targetLanguage) {
